@@ -21,8 +21,12 @@ function translate(text) {
   let params = '&to=de&to=it';
   axios.post('https://api.cognitive.microsofttranslator.com/translate?api-version=3.0'+params, postData, axiosConfig)
   .then((res) => {
-    console.log("RESPONSE RECEIVED: ", res.data);
-    //res.data.documents.forEach(item => {
+    //console.log("RESPONSE RECEIVED: ", res.data);
+    res.data.forEach(item => {
+      item.translations.forEach(obj => {
+        console.log(obj.text);
+      })
+    })
       //item.keyPhrases.forEach(keyP => {
         //console.log(keyP)
         //search.bing_web_search(keyP);
@@ -34,7 +38,17 @@ function translate(text) {
   })
 }
 
+let get_guid = function () {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 translate("Hello World!")
+module.exports = {
+     translate
+ }
 // 'use strict';
 
 // let fs = require ('fs');
