@@ -1,10 +1,18 @@
 var axios = require('axios')
-var search = require('./searchKeywords')
+//var search = require('./searchKeywords')
 let subscriptionKey = 'ef4f101e2121440581ff9ebfaf09dfd0';
-function findKeys(jsonData) {
+let subscriptionKey2 = '8575538c4ec24c20a4f3d9676fc5d08b';
+var urls = new Array();
+urls = [];
+const findKeys =  function (data) {
   
-  var postData = jsonData;
-
+  var postData = {
+    "documents": [
+              {
+                "id": "1",
+               "text": data
+              }
+    ]};
   let axiosConfig = {
     headers: {
         'Content-Type': 'application/json;charset=UTF-8',
@@ -17,50 +25,55 @@ function findKeys(jsonData) {
   axios.post('https://southcentralus.api.cognitive.microsoft.com/text/analytics/v2.0/keyPhrases', postData, axiosConfig)
   .then((res) => {
     //console.log("RESPONSE RECEIVED: ", res.data);
-    res.data.documents.forEach(item => {
-      item.keyPhrases.forEach(keyP => {
-        //console.log(keyP)
-        search.bing_web_search(keyP);
-      })
-    })
+    for (var i = 0; i < res.data.documents.length; i++) {
+      for (var j = 0; j < res.data.documents[i].keyPhrases.length; j++) {
+        console.log(res.data.documents[i].keyPhrases[j])
+        //console.log(urls)
+         bing_web_search(res.data.documents[i].keyPhrases[j])
+      }
+    }
+    // res.data.documents.forEach(item => {
+    //   item.keyPhrases.forEach(keyP => {
+    //     //console.log(keyP)
+    //     bing_web_search(keyP);
+    //   })
+    // })
+    
   })
   .catch((err) => {
     console.log("AXIOS ERROR: ", err);
   })
 }
-// var postData = {
-//     "documents": [
-//           {
-//               // "language": "en",
-//                "id": "1",
-//               "text": "We love this trail and make the trip every year. The views are breathtaking and well worth the hike!"
-//           },
-//           {
-//               // "language": "en",
-//                "id": "2",
-//               "text": "Poorly marked trails! I thought we were goners. Worst hike ever."
-//           },
-//           {
-//               // "language": "en",
-//                "id": "3",
-//               "text": "Everyone in my family liked the trail but thought it was too challenging for the less athletic among us. Not necessarily recommended for small children."
-//           },
-//           {
-//               // "language": "en",
-//                "id": "4",
-//               "text": "It was foggy so we missed the spectacular views, but the trail was ok. Worth checking out if you are in the area."
-//           },                
-//           {
-//               // "language": "en",
-//                "id": "5",
-//               "text": "This is my favorite trail. It has beautiful views and many places to stop and rest"
-//           }
-//       ]
-//   };
-// findKeys(postData);
 
+const bing_web_search = function (search) {
+    axios.get(
+        'https://api.cognitive.microsoft.com/bing/v7.0/search'+ '?q=' + encodeURIComponent(search),
+        {
+            headers: {
+                'Ocp-Apim-Subscription-Key' : subscriptionKey2,
+            }
+        }
+    )
+    .then((res) => {
+      //console.log("RESPONSE RECEIVED: ", res.data);
+      //console.log(res.data.webPages);
+      //console.log(res.data.webPages.value);
+      var i = 0;
+      for (; i < res.data.webPages.value.length; i++) {
+        urls.push(res.data.webPages.value[i].url)
+        console.log(urls)
+      }
+        // res.data.webPages.forEach(item => {
+        //     console.log(item)
+        // })
 
+      })
+    .catch((err) => {
+      //console.log("AXIOS ERROR: ", err);
+    })
+}
 
+findKeys("This is my favorite trail. It has beautiful views and many places to stop and rest")
 module.exports = {
-     findKeys,
+     findKeys
  }

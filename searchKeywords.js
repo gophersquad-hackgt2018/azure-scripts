@@ -10,11 +10,11 @@ var axios = require('axios')
 // **********************************************
 
 // Replace the subscriptionKey string value with your valid subscription key.
-let subscriptionKey = '8575538c4ec24c20a4f3d9676fc5d08b';
+let subscriptionKey2 = '8575538c4ec24c20a4f3d9676fc5d08b';
 
 let axiosConfig = {
   headers: {
-      'Ocp-Apim-Subscription-Key' : subscriptionKey,
+      'Ocp-Apim-Subscription-Key' : subscriptionKey2,
   }
 };
 
@@ -23,7 +23,7 @@ let bing_web_search = function (search) {
         'https://api.cognitive.microsoft.com/bing/v7.0/search'+ '?q=' + encodeURIComponent(search),
         {
             headers: {
-                'Ocp-Apim-Subscription-Key' : subscriptionKey,
+                'Ocp-Apim-Subscription-Key' : subscriptionKey2,
             }
         }
     )

@@ -4,37 +4,39 @@ let https = require ('https');
 var axios = require('axios')
 var search = require('./searchKeywords')
 let subscriptionKey = 'd700a4004e97434bb00094cfcea432a9';
-function translate(text) {
-  
-  var postData = JSON.stringify ([{'Text' : text}]);
+function translate(text,language) {
+  return new Promise((resolve, reject) => {
+    var postData = JSON.stringify ([{'Text' : text}]);
 
-  let axiosConfig = {
-    headers: {
-        'Content-Type' : 'application/json',
-        'Ocp-Apim-Subscription-Key' : subscriptionKey,
-        'X-ClientTraceId' : get_guid (),
-    }
-  };
+    let axiosConfig = {
+      headers: {
+          'Content-Type' : 'application/json',
+          'Ocp-Apim-Subscription-Key' : subscriptionKey,
+          'X-ClientTraceId' : get_guid (),
+      }
+    };
 
-//   let host = 'api.cognitive.microsofttranslator.com';
-// let path = '/translate?api-version=3.0';
-  let params = '&to=de&to=it';
-  axios.post('https://api.cognitive.microsofttranslator.com/translate?api-version=3.0'+params, postData, axiosConfig)
-  .then((res) => {
-    //console.log("RESPONSE RECEIVED: ", res.data);
-    res.data.forEach(item => {
-      item.translations.forEach(obj => {
-        console.log(obj.text);
+  //   let host = 'api.cognitive.microsofttranslator.com';
+  // let path = '/translate?api-version=3.0';
+    let params = language;
+    axios.post('https://api.cognitive.microsofttranslator.com/translate?api-version=3.0'+params, postData, axiosConfig)
+    .then((res) => {
+      //console.log("RESPONSE RECEIVED: ", res.data);
+      res.data.forEach(item => {
+        item.translations.forEach(obj => {
+          resolve(obj)
+        })
       })
-    })
-      //item.keyPhrases.forEach(keyP => {
-        //console.log(keyP)
-        //search.bing_web_search(keyP);
+        //item.keyPhrases.forEach(keyP => {
+          //console.log(keyP)
+          //search.bing_web_search(keyP);
+        //})
       //})
-    //})
-  })
-  .catch((err) => {
-    console.log("AXIOS ERROR: ", err);
+    })
+    .catch((err) => {
+      console.log("AXIOS ERROR: ", err);
+      reject(e)
+    })
   })
 }
 
@@ -45,7 +47,7 @@ let get_guid = function () {
   });
 }
 
-translate("Hello World!")
+//translate("Hello World!","&to=en")
 module.exports = {
      translate
  }
