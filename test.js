@@ -1,98 +1,28 @@
-'use strict';
-let fs = require ('fs');
-let https = require ('https');
-var axios = require('axios')
-var search = require('./searchKeywords')
-let subscriptionKey = 'd700a4004e97434bb00094cfcea432a9';
-function translate(text) {
-  
-  var postData = JSON.stringify ([{'Text' : text}]);
+const fs = require('fs')
+var check = require('./spellCheck')
 
-  let axiosConfig = {
-    headers: {
-        'Content-Type' : 'application/json',
-        'Ocp-Apim-Subscription-Key' : subscriptionKey,
-        'X-ClientTraceId' : get_guid (),
-    }
-  };
+const main = async () => {
+  var s = "\\documentclass[12pt]{article}\\usepackage{amsmath}\\begin{document}\\begin{align*}&\\frac { 1 } { 3 }\\&1\\&x\\&1\\&x + 4\\&x ^ { 2 } = 4 x\\&\\left. \\begin{array} { l } { x } \\ { x } \\ { x } \\end{array} \\right.\\&1\\&x + 2 = x\\&\\pi\\&x + x = 1\\&1\\&3\\&x + x\\&- 2 =\\&\\text { Hello world }\\&\\text { n. }\\&x\\&x = x + x\\&1\\&x\\&= 1\\& \\text { My name is Danie }\\&3\\&x + x = 4\\&x\\&1\\&1\\& \\text { the }\\&x\\&x + y =\\&80\\&1\\&1\\&1\\&1\\&2\\\\end{align*}\\end{document}";
+  //console.log(s);
+  // var rx = new RegExp("^\\text { ([\S]*)+? }","g");
+  var rx = /\\text { ([^0-9-&]*) }/g; 
+  var matches = new Array();
+  var old = new Array();
+  while((match = rx.exec(s)) !== null){
+       matches.push(match);
+  }
 
-//   let host = 'api.cognitive.microsofttranslator.com';
-// let path = '/translate?api-version=3.0';
-  let params = '&to=de&to=it';
-  axios.post('https://api.cognitive.microsofttranslator.com/translate?api-version=3.0'+params, postData, axiosConfig)
-  .then((res) => {
-    console.log("RESPONSE RECEIVED: ", res.data);
-    //res.data.documents.forEach(item => {
-      //item.keyPhrases.forEach(keyP => {
-        //console.log(keyP)
-        //search.bing_web_search(keyP);
-      //})
-    //})
+  matches.forEach(item => {
+    old.push(item[1])
   })
-  .catch((err) => {
-    console.log("AXIOS ERROR: ", err);
-  })
+  const correctedPromises = [];
+  old.forEach(item => {
+     correctedPromises.push(check.checkSpell(item))
+   })
+  const corrected = await Promise.all(correctedPromises)
+  console.log(corrected)
 }
 
-translate("Hello World!")
-// 'use strict';
-
-// let fs = require ('fs');
-// let https = require ('https');
-
-// // **********************************************
-// // *** Update or verify the following values. ***
-// // **********************************************
-
-// // Replace the subscriptionKey string value with your valid subscription key.
-// let subscriptionKey = 'd700a4004e97434bb00094cfcea432a9';
-
-// let host = 'api.cognitive.microsofttranslator.com';
-// let path = '/translate?api-version=3.0';
-
-// // Translate to German and Italian.
-// let params = '&to=de&to=it';
-
-// let text = 'Hello, world!';
-
-// let response_handler = function (response) {
-//     let body = '';
-//     response.on ('data', function (d) {
-//         body += d;
-//     });
-//     response.on ('end', function () {
-//         let json = JSON.stringify(JSON.parse(body), null, 4);
-//         console.log(json.translations);
-//     });
-//     response.on ('error', function (e) {
-//         console.log ('Error: ' + e.message);
-//     });
-// };
-
-// let get_guid = function () {
-//   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-//     var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-//     return v.toString(16);
-//   });
-// }
-
-// let Translate = function (content) {
-//     let request_params = {
-//         method : 'POST',
-//         hostname : host,
-//         path : path + params,
-//         headers : {
-//             'Content-Type' : 'application/json',
-//             'Ocp-Apim-Subscription-Key' : subscriptionKey,
-//             'X-ClientTraceId' : get_guid (),
-//         }
-//     };
-
-//     let req = https.request (request_params, response_handler);
-//     req.write (content);
-//     req.end ();
-// }
-
-// let content = JSON.stringify ([{'Text' : text}]);
-
-// Translate (content);
+main().catch(err => {
+  console.log(err)
+})
