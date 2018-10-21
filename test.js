@@ -20,7 +20,11 @@ const main = async () => {
      correctedPromises.push(check.checkSpell(item))
    })
   const corrected = await Promise.all(correctedPromises)
+  for(var i = 0; i < old.length; i++) {
+    s = s.replace(new RegExp(" "+old[i]+" ", 'g'), " "+corrected[i]+" ");
+  }
   console.log(corrected)
+  console.log(s)
 }
 
 main().catch(err => {
